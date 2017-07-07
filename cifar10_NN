@@ -1,0 +1,55 @@
+import numpy as np
+class NearestNeighnor(object):
+    def __init__(self):
+        pass
+
+    def train(self,X,y):
+        self.Xtr=X
+        self.ytr=y
+
+    def predict(self,X):
+        num_test=X.shape[0]
+        Ypred=np.zeros(num_test,dtype=self.ytr.dtype)
+        for i in xrange(num_test):
+           # distances=np.sum(np.abs(self.Xtr-X[i,:]),axis=1)
+           distances=np.sqrt(np.sum(np.square(self.Xtr-X[i,:]),axis=1))
+           min_index=np.argmin(distances)
+           Ypred[i]=self.ytr[min_index]
+        return  Ypred
+
+
+import numpy as np
+from NearestNeighnor import NearestNeighnor
+def unpickle(file):
+    import cPickle
+    fo=open(file,'rb')
+    dict=cPickle.load(fo)
+    fo.close()
+    return dict
+dataTrain=[]
+labelTrain=[]
+for i in range(1,6):
+    dic=unpickle("data\cifar-10-batches-py\data_batch_"+str(i))
+    for item in dic["data"]:
+        dataTrain.append(item)
+    for item in dic["labels"]:
+        labelTrain.append(item)
+
+dataTest=[]
+labelTest=[]
+dic=unpickle("data\cifar-10-batches-py\\test_batch")
+for item in dic["data"]:
+    dataTest.append(item)
+for item in dic["labels"]:
+    labelTest.append(item)
+
+dataTr=np.asarray(dataTrain)
+dataTs=np.asarray(dataTest)
+labelTr=np.asarray(labelTrain)
+labelTs=np.asarray(labelTest)
+print dataTr.shape
+
+nn=NearestNeighnor()
+nn.train(dataTr,labelTr)
+Yte_predict=nn.predict(dataTs)
+print 'accuracy:%f'%(np.mean(Yte_predict==labelTs))
